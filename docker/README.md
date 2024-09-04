@@ -684,7 +684,7 @@ The lab assignment has the following requirements:
 
 ## Evaluation Procedure
 
-The lab assignments will be assessed during the tutorials on the 20th of 
+The lab assignments will be assessed during the tutorials on the 25th of 
 September. 
 
 During the assessment, I will ask you to execute the shortlived container 3
