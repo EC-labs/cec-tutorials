@@ -608,7 +608,7 @@ docker network rm t3n
 # Lab Assignment
 
 In the following
-[repository](https://github.com/landaudiogo/cc-assignment-2023), there are a
+[repository](https://github.com/EC-labs/cec-assignment), there are a
 set of services that will be useful for you to test your implementation for the
 assignment. One of these services is the `notifications-service`.
 
