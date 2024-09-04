@@ -436,12 +436,12 @@ For this lab assignment, you will have to:
 - Try changing the parameters passed into the `experiment-producer` such as the
   duration, sample-rate, stabilization-samples, carry-out-samples, etc...
   Refer to the experiment producer's
-  [readme](https://github.com/landaudiogo/cc-assignment-2023/tree/master/experiment-producer)
+  [readme](https://github.com/EC-labs/cec-assignment/tree/master/experiment-producer)
   for more information on the options you can pass into the experiment-producer.
 
 ## Evaluation Procedure
 
-The lab assignments will be assessed during the tutorials on the 27th of
+The lab assignments will be assessed during the tutorials on the 25th of
 September. 
 
 During the assessment, you will start your consumer, and then start the 3
