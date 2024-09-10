@@ -579,7 +579,7 @@ docker inspect d3c-server | grep IPAddress
 Our client will now run curl to make a request to our server:
 ```bash
 docker build -t d3i-client -f Dockerfile-client .
-docker run --rm --name d3c-client d3i-client 172.17.0.3:1234
+docker run --rm --name d3c-client d3i-client 172.17.0.3:1234 -s
 ```
 
 To allow communicating between our containers based on their names, we have to
@@ -595,7 +595,7 @@ docker run -d --rm --name d3c-server --network d3n d3i
 We now can run our client, add it to the same network and connect to the server
 based on the name we gave it: 
 ```bash
-docker run --rm --network d3n --name d3c-client d3i-client d3c-server:1234
+docker run --rm --network d3n --name d3c-client d3i-client d3c-server:1234 -s
 ```
 
 We can now remove the network: 
