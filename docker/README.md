@@ -613,16 +613,20 @@ assignment. One of these services is the `notifications-service`.
 
 The lab assignment has the following requirements: 
 
-1. Containerize the `notifications-service`. When starting the
+1. Run a `notifications-service` container. When starting the
    `notifications-service` you should pass the parameter `--secret-key
-   QJUHsPhnA0eiqHuJqsPgzhDozYO4f1zh`.
+   QJUHsPhnA0eiqHuJqsPgzhDozYO4f1zh`. Use the following image
+   `dclandau/cec-notifications-service`.
 
-   **Before you continue reading, please try and make sure you tried to
-   containerize the notifications-service yourself.**
+   **Before you continue reading, please try and make sure you tried running
+   the notifications-service image yourself.**
 
    If you are struggling with containerizing the notifications-service, in the
-   `docker/assignment` directory there is an example Dockerfile and execution
-   script for the notifications-service. 
+   `docker/assignment` directory there is an example script (`run.sh`) that deploys the
+   `notifications-service`. You can run the notifications-service with:
+   ```bash
+   ./assignment/run.sh --secret-key QJUHsPhnA0eiqHuJqsPgzhDozYO4f1zh --external-ip localhost
+   ```
 
    To confirm whether you successfully deployed your notifications-service, run
    the following command: 
