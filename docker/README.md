@@ -139,7 +139,7 @@ is.
 
 Clone this git repository: 
 ```bash
-git clone https://github.com/landaudiogo/cc-tutorials-2023.git
+git clone https://github.com/EC-labs/cec-tutorials.git
 ```
 
 Change into the directory of our first demo:
@@ -222,8 +222,8 @@ docker build -t d1i-shell -f Dockerfile-shell .
 We will start with the container in exec form, and analyze what the `CMD` and
 `ENTRYPOINT` instructions are doing:
 ```bash
-docker run --name t1c --rm -d d1i-exec
-docker logs -f t1c
+docker run --name d1c --rm -d d1i-exec
+docker logs -f d1c
 # Starting
 # ['main.py', 'hello', 'this', 'is', 'CMD']
 # 0
@@ -232,14 +232,14 @@ docker logs -f t1c
 ```
 
 ```bash
-docker stop t1c
+docker stop d1c
 ```
 
 We now execute the same container, but we now specify the arguments to pass into
 our `ENTRYPOINT`:
 ```bash
-docker run --name t1c --rm -d d1i-exec arg1 arg2
-docker logs -f t1c
+docker run --name d1c --rm -d d1i-exec arg1 arg2
+docker logs -f d1c
 # Starting
 # ['main.py', 'arg1', 'arg2']
 # 0
@@ -251,14 +251,14 @@ Notice how what we specified in the `CMD` instruction is ignored.
 Lets have a look at how signal propagation works in the exec form. Get an
 interactive shell from the container: 
 ```bash
-docker exec -it t1c /bin/sh
+docker exec -it d1c /bin/sh
 ```
 
 List the running processes in the container:
 ```bash
 ps -ef
 # UID          PID    PPID  C STIME TTY          TIME CMD
-# root           1       0  0 08:36 ?        00:00:00 python3 -u main.py hello this is CMD
+# root           1       0  0 08:36 ?        00:00:00 python3 -u main.py arg1 arg2
 # root           7       0  0 08:39 pts/0    00:00:00 /bin/sh
 # root          13       7  0 08:39 pts/0    00:00:00 ps -ef
 ```
@@ -270,7 +270,7 @@ exit
 
 Note how our program is PID 1. Now lets try and stop the container with: 
 ```bash
-docker stop t1c
+docker stop d1c
 ```
 
 When we stop a container with `docker stop` it sends a `SIGTERM`, waits ten
@@ -281,8 +281,8 @@ exit as soon as it has handled the signal.
 How does signal propagation work in the shell form container? We can start the
 shell form container with:
 ```bash
-docker run --name t1c --rm -d d1i-shell
-docker logs -f t1c
+docker run --name d1c --rm -d d1i-shell arg1 arg2
+docker logs -f d1c
 # Starting
 # ['main.py']
 # 0
@@ -298,13 +298,13 @@ our executable.
 
 Lets attach an interactive shell to the container:
 ```bash
-docker exec -it t1c /bin/sh
+docker exec -it d1c /bin/sh
 ```
 
 ```bash
 ps -ef
 # UID          PID    PPID  C STIME TTY          TIME CMD
-# root           1       0  0 09:15 ?        00:00:00 /bin/sh -c python3 -u main.py hello this is CMD
+# root           1       0  0 09:15 ?        00:00:00 /bin/sh -c python3 -u main.py arg1 arg2
 # root           7       1  0 09:15 ?        00:00:00 python3 -u main.py
 # root           8       0  0 09:22 pts/0    00:00:00 /bin/sh
 # root          13       8  0 09:22 pts/0    00:00:00 ps -ef
@@ -323,7 +323,7 @@ the option.
 
 Lets stop our container and have a look at how it behaves: 
 ```bash
-docker stop t1c
+docker stop d1c
 ```
 
 The program seems to hang for 10 seconds, and then terminate. This means that
@@ -416,7 +416,7 @@ wait
 
 We now build our image with: 
 ```bash
-docker build -t t2i .
+docker build -t d2i .
 ```
 
 The first container we will run, will simply run the entrypoint script, which is
@@ -425,9 +425,9 @@ result of the CMD instruction in the dockerfile). To run it, execute:
 ```bash
 docker run \
     -d --rm \
-    --name t2c-1 \
-    --volume t2v:/usr/src/data \
-    t2i
+    --name d2c-1 \
+    --volume d2v:/usr/src/data \
+    d2i
 ```
 
 As for our second container, because we will be passing arguments to the `docker
@@ -438,9 +438,9 @@ pass as arguments. This happens to be a bash instruction `echo "sharing" >>
 ```bash
 docker run \
     -d --rm \
-    --name t2c-2 \
-    --volume t2v:/usr/src/data \
-    t2i \
+    --name d2c-2 \
+    --volume d2v:/usr/src/data \
+    d2i \
     /bin/sh -c 'echo "sharing" >> ../data/save_file'
 ```
 
@@ -449,35 +449,35 @@ volume between both containers, the first container should be able to see the
 data that has been written by this second command. Run the following command to
 validate whether this is the case: 
 ```bash
-docker logs -f t2c-1
+docker logs -f d2c-1
 ```
 
 To show how data is persisted, we will now stop the container that is reading
 from the shared file, and start it again, and print what the file shows:
 ```bash
-docker stop t2c-1
+docker stop d2c-1
 docker run \
     -d --rm \
-    --name t2c-1 \
-    --volume t2v:/usr/src/data \
-    t2i
-docker logs -f t2c-1
+    --name d2c-1 \
+    --volume d2v:/usr/src/data \
+    d2i
+docker logs -f d2c-1
 ```
 
 Conversely, if we had not used volumes, the file printed by the container would
 simply be the file in its form as created in the Dockerfile:
 ```bash
-docker stop t2c-1
+docker stop d2c-1
 docker run \
     -d --rm \
-    --name t2c-1 \
-    t2i
-docker logs -f t2c-1
+    --name d2c-1 \
+    d2i
+docker logs -f d2c-1
 ```
 
 We may now stop the container:
 ```bash
-docker stop t2c-1
+docker stop d2c-1
 ```
 
 
@@ -487,18 +487,18 @@ following command:
 ```bash
 docker run \
     -d --rm \
-    --name t2c-1 \
+    --name d2c-1 \
     --volume $(pwd)/data:/usr/src/data \
-    t2i
+    d2i
 ```
 
 We can run our second container now with the command:
 ```bash
 docker run \
     -d --rm \
-    --name t2c-2 \
+    --name d2c-2 \
     --volume "$(pwd)/data":/usr/src/data \
-    t2i \
+    d2i \
     /bin/sh -c 'echo "hello" >> ../data/save_file'
 ```
 
@@ -509,8 +509,8 @@ cat ./data/save_file
 
 To clean our setup we can run:
 ```bash
-docker stop t2c-1
-docker volume rm t2v
+docker stop d2c-1
+docker volume rm d2v
 ```
 
 ## Networks
@@ -543,13 +543,17 @@ create a server listening on port 1234:
 # Dockerfile-server
 FROM busybox:latest
 
-ENTRYPOINT nc -l -p 1234 -v
+WORKDIR /usr/app/
+
+COPY entrypoint.sh .
+
+ENTRYPOINT ["./entrypoint.sh"]
 ```
 
 We first build and start our server with: 
 ```bash
-docker build -t t3i -f Dockerfile-server .
-docker run -d --rm --name t3c-server -p 3001:1234 t3i
+docker build -t d3i -f Dockerfile-server .
+docker run -d --rm --name d3c-server -p 3001:1234 d3i
 ```
 
 To connect to our server from our host, run:
@@ -561,19 +565,12 @@ The `-p 3001:1234` option is what connects our host's port `3001` to our
 container's port `1234`. Without this option, we would not be able to
 communicate with our container from our host. 
 
-To communicate between 2 containers, we will start our server again with the
-following command: 
+Because we started our server without adding it to a network, docker
+automatically adds it to the default bridge. All containers in the default
+bridge can communicate with one another only with the other container's IP
+address. For this purpose, we run:
 ```bash
-docker run -d --rm --name t3c-server t3i
-```
-
-Because we are not specifying a network for the container to connect to, it is
-added to the default bridge. All containers in the default bridge can
-communicate with one another only with the other container's IP addresses. 
-
-To find our server's ip address, we run:
-```bash
-docker inspect t3c-server | grep IPAddress
+docker inspect d3c-server | grep IPAddress
 # "SecondaryIPAddresses": null,
 # "IPAddress": "172.17.0.3",
 #       "IPAddress": "172.17.0.3",
@@ -581,8 +578,8 @@ docker inspect t3c-server | grep IPAddress
 
 Our client will now run curl to make a request to our server:
 ```bash
-docker build -t t3i-client -f Dockerfile-client .
-docker run --rm --name t3c-client t3i-client 172.17.0.3:1234
+docker build -t d3i-client -f Dockerfile-client .
+docker run --rm --name d3c-client d3i-client 172.17.0.3:1234
 ```
 
 To allow communicating between our containers based on their names, we have to
@@ -590,19 +587,21 @@ add the containers on the same network. As such we first create our network, and
 add our server to the network: 
 
 ```bash
-docker network create t3n
-docker run -d --rm --name t3c-server --network t3n t3i
+docker network create d3n
+docker stop d3c-server
+docker run -d --rm --name d3c-server --network d3n d3i
 ```
 
 We now can run our client, add it to the same network and connect to the server
 based on the name we gave it: 
 ```bash
-docker run --rm --network t3n --name t3c-client t3i-client t3c-server:1234
+docker run --rm --network d3n --name d3c-client d3i-client d3c-server:1234
 ```
 
 We can now remove the network: 
 ```bash
-docker network rm t3n
+docker stop d3c-server
+docker network rm d3n
 ```
 
 # Lab Assignment

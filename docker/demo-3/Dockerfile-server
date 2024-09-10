@@ -2,4 +2,6 @@ FROM busybox:latest
 
 WORKDIR /usr/app/
 
-ENTRYPOINT nc -l -p 1234 -v
+COPY entrypoint.sh .
+
+ENTRYPOINT ["./entrypoint.sh"]
