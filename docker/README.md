@@ -55,6 +55,15 @@ Connect to your EC2 instance:
 ssh -i <your-pem-file> ubuntu@<VM-public IP>
 ```
 
+If you are having trouble connecting to your instance because of permissions:
+
+* Linux / MacOS
+  ```bash 
+  chmod 400 ssh_key_xx
+  ```
+* Windows [Windows SSH: Permissions for 'private-key' are too open](https://superuser.com/questions/1296024/windows-ssh-permissions-for-private-key-are-too-open)
+  
+
 > We will mostly follow this reference: 
 > https://docs.docker.com/engine/install/ubuntu/
 
