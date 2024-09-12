@@ -136,7 +136,12 @@ repository's directory, followed by:
 cd kafka
 ```
 
-We will start by building our image:
+Let's make sure the repository is up to date:
+```bash
+git pull
+```
+
+Start by building the image:
 ```bash
 docker build -t tkafka/simple simple_producer_consumer
 ```
