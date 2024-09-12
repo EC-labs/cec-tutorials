@@ -419,7 +419,7 @@ service, and deserialize the data it produces.
 For this lab assignment, you will have to: 
 
 - Adapt the `start-producer.sh` script to start 3 instances of the
-  `experiment-producer` concurrently. 
+  `experiment-producer` **CONCURRENTLY**. 
   > Tip: 
   > Consider creating a bash for loop around the command that instantiates the
   > experiment-producer container.
