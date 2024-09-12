@@ -17,7 +17,7 @@ signal.signal(signal.SIGTERM, signal_handler)
 @click.argument('offset_reset')
 def consume(topic: str, offset_reset: str): 
     c = Consumer({
-        'bootstrap.servers': '13.49.128.80:19093',
+        'bootstrap.servers': '13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093',
         'group.id': f"{random.random()}",
         'auto.offset.reset': offset_reset,
         'security.protocol': 'SSL',

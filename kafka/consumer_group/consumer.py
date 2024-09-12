@@ -15,7 +15,7 @@ signal.signal(signal.SIGTERM, signal_handler)
 @click.argument('consumer_group')
 def consume(topic: str, consumer_group: str): 
     c = Consumer({
-        'bootstrap.servers': '13.49.128.80:19093',
+        'bootstrap.servers': '13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093',
         'group.id': consumer_group,
         'auto.offset.reset': 'latest',
         'security.protocol': 'SSL',

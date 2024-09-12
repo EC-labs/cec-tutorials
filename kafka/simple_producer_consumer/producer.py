@@ -2,9 +2,8 @@ import click
 
 from confluent_kafka import Producer
 
-
 p = Producer({
-    'bootstrap.servers': '13.49.128.80:19093,13.49.128.80:29093,13.49.128.80:39093',
+    'bootstrap.servers': '13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093',
     'security.protocol': 'SSL',
     'ssl.ca.location': './auth/ca.crt',
     'ssl.keystore.location': './auth/kafka.keystore.pkcs12',

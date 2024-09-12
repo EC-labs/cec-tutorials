@@ -22,7 +22,7 @@ def store_data():
 @click.argument('group_id')
 def consume(topic: str, group_id: str): 
     c = Consumer({
-        'bootstrap.servers': '13.49.128.80:19093',
+        'bootstrap.servers': '13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093',
         'group.id': f"{group_id}",
         'auto.offset.reset': 'earliest',
         'security.protocol': 'SSL',

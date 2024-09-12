@@ -48,9 +48,8 @@ import click
 
 from confluent_kafka import Producer
 
-
 p = Producer({
-    'bootstrap.servers': '13.49.128.80:19093,13.49.128.80:29093,13.49.128.80:39093',
+    'bootstrap.servers': '13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093',
     'security.protocol': 'SSL',
     'ssl.ca.location': './auth/ca.crt',
     'ssl.keystore.location': './auth/kafka.keystore.pkcs12',
@@ -69,35 +68,47 @@ def produce(topic: str):
 
 produce()
 ```
-is configured, reads in an argument passed in as the topic. The topic you will
-subscribe to is your client `id`, e.g., in my case it is `client60`. It then
+is configured, then reads in an argument passed in as the topic. The topic you will
+subscribe to is your client `id`, e.g., in my case it is `client58`. It then
 starts a loop where it asks for a user's input, and sends the message to kafka.
 
 With regards to the consumer,
 ```python
 # simple_producer_consumer/consumer.py
+import signal
 import click 
+import random
 
 from confluent_kafka import Consumer
 
 
+def signal_handler(sig, frame):
+    print('EXITING SAFELY!')
+    exit(0)
+
+signal.signal(signal.SIGTERM, signal_handler)
+
 c = Consumer({
-    'bootstrap.servers': '13.49.128.80:19093',
-    'group.id': 'simple_consumer',
+    'bootstrap.servers': '13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093',
+    'group.id': f"{random.random()}",
     'auto.offset.reset': 'latest',
+    'enable.auto.commit': 'true',
     'security.protocol': 'SSL',
     'ssl.ca.location': './auth/ca.crt',
     'ssl.keystore.location': './auth/kafka.keystore.pkcs12',
     'ssl.keystore.password': 'cc2023',
-    'enable.auto.commit': 'true',
     'ssl.endpoint.identification.algorithm': 'none',
 })
 
 @click.command()
 @click.argument('topic')
 def consume(topic: str): 
-    c.subscribe([topic])
+    c.subscribe(
+        [topic], 
+        on_assign=lambda _, p_list: print(p_list)
+    )
 
+    num_events = 0
     while True:
         msg = c.poll(1.0)
         if msg is None:
@@ -105,11 +116,14 @@ def consume(topic: str):
         if msg.error():
             print("Consumer error: {}".format(msg.error()))
             continue
+        num_events += 1
+        if num_events % 1000 == 0:
+            print(num_events)
         print(msg.value())
 
 consume()
 ```
-it is first configured, and receives as input the topic to subscribe to.
+it is first configured, then receives as input the topic to subscribe to.
 This must be the same as the topic passed to the producer. It then enters an
 infinite loop that polls to check whether there are any messages to be
 consumed, and if so prints them to standard output. 
@@ -428,16 +442,18 @@ For this lab assignment, you will have to:
   would recommend you read the document linked above. Make sure you also print
   the message header `record_name` before printing each message, as shown in
   the output above.
-- You may create the consumer in any programming language, as long as it
-  supports has support for kafka consumers and apache avro. E.g. Because rust
-  has a rdkafka and apache avro library, the experiment-producer was developed
-  in rust; Python also libraries for both, and for the output illustrated
-  above, I used Python.
+- You may create the consumer in any programming language, as long as it has
+  support for kafka consumers and apache avro. E.g. Because rust has a rdkafka
+  and apache avro library, the experiment-producer was developed in rust;
+  Python also has libraries for both, and for the output illustrated above, I
+  used Python.
 - Try changing the parameters passed into the `experiment-producer` such as the
   duration, sample-rate, stabilization-samples, carry-out-samples, etc...
-  Refer to the experiment producer's
-  [readme](https://github.com/EC-labs/cec-assignment/tree/master/experiment-producer)
-  for more information on the options you can pass into the experiment-producer.
+  To see the available options, run the script with the `--help` parameter.
+  E.g.:
+  ```
+  start-producer.sh auth topic brokers --help
+  ```
 
 ## Evaluation Procedure
 
