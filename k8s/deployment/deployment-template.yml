@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: experiment-consumer-deployment
   labels:
-    app: experiment-consumer
+    app: consumer-deployment
 spec:
   replicas: 2
   selector:
@@ -16,8 +16,13 @@ spec:
     spec:
       containers:
         - name: experiment-consumer
-          image: dclandau/assignment-consumer:1.0.0
-          args: ["consumer.py", "{{TOPIC}}", "{{GROUP_ID}}"]
+          image: dclandau/consumer_assignment:1.0.1
+          args: [
+            "consumer.py", 
+            "13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093",
+            "{{TOPIC}}",
+            "{{GROUP_ID}}",
+          ]
           volumeMounts:
             - name: config-vol
               mountPath: /usr/src/app/auth

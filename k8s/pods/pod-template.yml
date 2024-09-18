@@ -5,16 +5,14 @@ metadata:
 spec:
   containers:
     - name: experiment-producer
-      image: dclandau/experiment-producer:1.0.0
+      image: dclandau/cec-experiment-producer:latest
       args: [
           "--topic", "{{TOPIC}}", 
-          "--sample-rate", "1000", 
-          "--stabilization-samples", "5", 
-          "--carry-out-samples", "20"
+          "--brokers", "13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093",
         ]
       volumeMounts:
         - name: config-vol
-          mountPath: /usr/src/cc-assignment-2023/experiment-producer/auth
+          mountPath: /app/experiment-producer/auth
   volumes:
     - name: config-vol
       configMap:

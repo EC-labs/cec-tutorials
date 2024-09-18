@@ -1,3 +1,11 @@
+# Update Tutorials Repository
+
+Make sure you have an updated version of the tutorials repository:
+
+```
+git pull
+```
+
 # Overview
 
 > Kubernetes is a system that automates deploying, scaling and management of
@@ -20,7 +28,7 @@ resources and concepts:
 - horizontal pod autoscaling
 
 
-We will distribute the tutorial on k8s between 2 days, the 20th and the 22nd of
+We will distribute the tutorial on k8s between 2 days, the 20th and the 25th of
 September.
 
 # Installing Minikube & kubectl
@@ -28,11 +36,7 @@ September.
 To install minikube run the following commands:
 ```bash
 curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-sudo install minikube-linux-amd64 /usr/local/bin/minikube
-```
-
-```bash
-rm minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
 ```
 
 ```bash
@@ -103,16 +107,14 @@ metadata:
 spec:
   containers:
     - name: experiment-producer
-      image: dclandau/experiment-producer:1.0.0
+      image: dclandau/cec-experiment-producer:latest
       args: [
           "--topic", "{{TOPIC}}", 
-          "--sample-rate", "1000", 
-          "--stabilization-samples", "5", 
-          "--carry-out-samples", "20"
+          "--brokers", "13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093",
         ]
       volumeMounts:
         - name: config-vol
-          mountPath: /usr/src/cc-assignment-2023/experiment-producer/auth
+          mountPath: /app/experiment-producer/auth
   volumes:
     - name: config-vol
       configMap:
@@ -193,11 +195,11 @@ deploy our database.
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: postgres-pv-volume  # Sets PV's name
+  name: postgres-pv  # Sets PV's name
 spec:
   storageClassName: manual
   capacity:
-    storage: 1Gi # Sets PV Volume
+    storage: 2Gi # Sets PV Volume
   accessModes:
     - ReadWriteOnce
   hostPath:
@@ -207,7 +209,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: postgres-pv-claim  # Sets name of PVC
+  name: postgres-pvc  # Sets name of PVC
 spec:
   storageClassName: manual
   accessModes:
@@ -249,7 +251,7 @@ spec:
   volumes:
     - name: postgredb
       persistentVolumeClaim:
-        claimName: postgres-pv-claim
+        claimName: postgres-pvc
   restartPolicy: Always
 ```
 
@@ -363,7 +365,7 @@ sed 's/{{TOPIC}}/<your-topic>/g' < jobs/job-template.yml | kubectl apply -f -
 watch kubectl get pods
 ```
 
-We can also check thet state of our job with:
+We can also check the state of our job with:
 ```bash
 kubectl get jobs
 ```
@@ -407,20 +409,21 @@ kubectl delete -f jobs/cronjob-template.yml
 
 # Deployment
 
-A deployment is a k8s resource that manages a stateless set of pods. With
-deployments. By defining our deployment's state, the deployment controller will
-always try to uphold this contract. When dealing with deployments, we can
-scale our service by increasing the number of replicas (horizontal scaling).
-This can either be done manually, or resorting to the horizontal pod autoscaler
-(HPA). We will look into HPA further into this tutorial.
+A deployment is a k8s resource that manages a stateless set of pods. By
+defining our deployment's state, the deployment controller will always try to
+uphold this contract. When dealing with deployments, we can scale our service
+by increasing the number of replicas (horizontal scaling). This can either be
+done manually, or resorting to the horizontal pod autoscaler (HPA). We will
+look into HPA further into this tutorial.
 
 ```yaml
+# deployment/deployment-template.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: experiment-consumer-deployment
   labels:
-    app: experiment-consumer
+    app: consumer-deployment
 spec:
   replicas: 2
   selector:
@@ -433,8 +436,13 @@ spec:
     spec:
       containers:
         - name: experiment-consumer
-          image: dclandau/assignment-consumer:1.0.1
-          args: ["consumer.py", "{{TOPIC}}"]
+          image: dclandau/consumer_assignment:1.0.1
+          args: [
+            "consumer.py", 
+            "13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093",
+            "{{TOPIC}}",
+            "{{GROUP_ID}}",
+          ]
           volumeMounts:
             - name: config-vol
               mountPath: /usr/src/app/auth
@@ -453,7 +461,7 @@ spec:
 
 This deployment indicates it will manage pods that have the structure defined
 in the `.spec.template.spec` attribute. Each pod will host a single container
-based on the image `dclandau/assignment-consumer:1.0.0` pulled from my docker
+based on the image `dclandau/consumer_assignment:1.0.1` pulled from my docker
 hub image repository. This image creates a consumer instance that will read
 data from the topic we pass into it as an argument.
 
@@ -508,12 +516,13 @@ contained in a deployment are stateless, our communication requirements can
 usually be satisfied by any of the pods in our deployment.
 
 ```yaml
+# service/service.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: notifications-service
   labels:
-    app: tutorial-k8s
+    app: notifications-deployment
 spec:
   replicas: 2
   selector:
@@ -526,7 +535,8 @@ spec:
     spec:
       containers:
         - name: notifications-service
-          image: dclandau/notifications-service:1.0.0
+          image: dclandau/cec-notifications-service:latest
+          args: ["--external-ip", "{{EXTERNAL_IP}}", "--secret-key", "QJUHsPhnA0eiqHuJqsPgzhDozYO4f1zh"]
           ports: 
           - containerPort: 3000
 
@@ -540,7 +550,7 @@ spec:
   selector:
     app: notifications-service
   ports:
-    - port: 3000
+    - port: 4000
       targetPort: 3000
       nodePort: 30674
 ```
@@ -564,7 +574,7 @@ docker run \
     --rm -d \
     --name nginx-proxy \
     -v $(pwd)/service/conf.d:/etc/nginx/conf.d \
-    -p 3000:3000 \
+    -p 3002:3001 \
     --network minikube \
     nginx:alpine 
 ```
@@ -576,7 +586,7 @@ If we now run 5 of our requests:
 ```bash
 for i in $(seq 1 5); do 
     curl -X 'POST' \
-        'http://localhost:3000/api/notify' \
+        'http://localhost:3002/api/notify' \
         -H 'accept: text/plain; charset=utf-8' \
         -H 'Content-Type: application/json; charset=utf-8' \
         -d '{
@@ -622,7 +632,7 @@ resource (such as a Deployment or StatefulSet), with the aim of automatically
 scaling the workload to match demand."*
 [(link)](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
 
-Horizontal referes to adding more instances instead of adding more resources
+Horizontal refers to adding more instances instead of adding more resources
 (which would be vertical scaling).
 
 For this part of the tutorial, we will stress a notifications-service
@@ -642,12 +652,13 @@ decrease to the minimum.
 
 Let's have a look at our manifest: 
 ```yaml
+# hpa
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: notifications-service
   labels:
-    app: tutorial-k8s
+    app: notifications-deployment
 spec:
   replicas: 1
   selector:
@@ -660,8 +671,8 @@ spec:
     spec:
       containers:
         - name: notifications-service
-          image: dclandau/notifications-service:1.0.0
-          args: ["--external-ip", "{{EXTERNAL_IP}}"]
+          image: dclandau/cec-notifications-service:latest
+          args: ["--external-ip", "{{EXTERNAL_IP}}", "--secret-key", "QJUHsPhnA0eiqHuJqsPgzhDozYO4f1zh"]
           ports: 
           - containerPort: 3000
           resources:
@@ -745,7 +756,7 @@ To stress the notifications-service, run the following command:
 ```bash
 for i in $(seq 1 100000); do 
     curl -X 'POST' \
-        'http://192.168.49.2:30674/api/notify' \
+        "http://$(minikube ip):30674/api/notify" \
         -H 'accept: text/plain; charset=utf-8' \
         -H 'Content-Type: application/json; charset=utf-8' \
         -d '{
@@ -754,7 +765,7 @@ for i in $(seq 1 100000); do
             "measurement_id": "1234",
             "experiment_id": "5678",
             "cipher_data": "D5qnEHeIrTYmLwYX.hSZNb3xxQ9MtGhRP7E52yv2seWo4tUxYe28ATJVHUi0J++SFyfq5LQc0sTmiS4ILiM0/YsPHgp5fQKuRuuHLSyLA1WR9YIRS6nYrokZ68u4OLC4j26JW/QpiGmAydGKPIvV2ImD8t1NOUrejbnp/cmbMDUKO1hbXGPfD7oTvvk6JQVBAxSPVB96jDv7C4sGTmuEDZPoIpojcTBFP2xA"
-        }'; 
+        }'
     sleep 0.00001
 done
 ```

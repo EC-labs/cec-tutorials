@@ -1,11 +1,11 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: postgres-pv-volume  # Sets PV's name
+  name: postgres-pv  # Sets PV's name
 spec:
   storageClassName: manual
   capacity:
-    storage: 1Gi # Sets PV Volume
+    storage: 2Gi # Sets PV Volume
   accessModes:
     - ReadWriteOnce
   hostPath:
@@ -15,7 +15,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: postgres-pv-claim  # Sets name of PVC
+  name: postgres-pvc  # Sets name of PVC
 spec:
   storageClassName: manual
   accessModes:
@@ -57,5 +57,5 @@ spec:
   volumes:
     - name: postgredb
       persistentVolumeClaim:
-        claimName: postgres-pv-claim
+        claimName: postgres-pvc
   restartPolicy: Always

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: notifications-service
   labels:
-    app: tutorial-k8s
+    app: notifications-deployment
 spec:
   replicas: 1
   selector:
@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
         - name: notifications-service
-          image: dclandau/notifications-service:1.0.0
-          args: ["--external-ip", "{{EXTERNAL_IP}}"]
+          image: dclandau/cec-notifications-service:latest
+          args: ["--external-ip", "{{EXTERNAL_IP}}", "--secret-key", "QJUHsPhnA0eiqHuJqsPgzhDozYO4f1zh"]
           ports: 
           - containerPort: 3000
           resources:
