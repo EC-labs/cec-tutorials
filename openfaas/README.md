@@ -22,16 +22,23 @@ export OPENFAAS_PREFIX="localhost:5000"
 source ~/.bashrc
 ```
 
-Install openfaas: 
+Create the openfaas namespaces and install helm:
 ```bash
-arkade install openfaas
+kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
+arkade get helm
 ```
 
-Run the following commands to deploy our first function:
+Add our helm repository for the purposes of this tutorial, make sure it is up
+to date, and install the openfaas release:
 ```bash
-# Forward the gateway to your machine
-kubectl rollout status -n openfaas deploy/gateway
-kubectl port-forward -n openfaas svc/gateway 8080:8080 &
+helm repo add customof https://raw.githubusercontent.com/landaudiogo/faasnetes-fork/changes/docs
+helm repo update customof
+helm install openfaas customof/openfaas --namespace openfaas
+```
+
+Allow connecting to the openfaas service from our VM's 8080 port:
+```bash
+kubectl port-forward -n openfaas svc/gateway 8080:8080 >/dev/null 2>&1 & disown
 ```
 
 ```bash

@@ -16,7 +16,7 @@ def handle(event, context):
         rows = cur.fetchall()
         return {
             "statusCode": 200,
-            "body": rows
+            "body": f"{str(rows)}\n"
         }
     elif event.method == "POST": 
         researcher = event.query["researcher"]
@@ -25,4 +25,5 @@ def handle(event, context):
         conn.commit()
         return {
             "statusCode": 200,
-            "body": f"Created researcher {researcher}" }
+            "body": f"Created researcher {researcher}\n" 
+        }
