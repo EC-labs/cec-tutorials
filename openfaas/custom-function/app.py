@@ -25,15 +25,15 @@ def fix_transfer_encoding():
 
 @app.route("/", defaults={"path": ""}, methods=["POST", "GET"])
 def home(path):
-    return "home"
+    return "home\n"
 
 @app.route("/users/", methods=['GET', 'POST', 'PUT'])
 def users():
-    return "get users"
+    return "get users\n"
 
 @app.route('/user/<username>')
 def profile(username):
-    return "get profile"
+    return "get profile\n"
 
 if __name__ == '__main__':
     serve(app, host='0.0.0.0', port=5000)
