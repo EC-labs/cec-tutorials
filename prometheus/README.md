@@ -1,3 +1,10 @@
+# Update Repository
+
+```bash
+cd cec-tutorials
+git pull
+```
+
 # Overview
 
 An observable system is one that collects data to provide insights as to how it
@@ -35,13 +42,19 @@ It consists of 3 components:
    targets (node_exporter), and stores it in a timeseries database.
 1. Grafana: Hosts a dashboard to visualize your infrastructure's costs.
 
+
+First, make sure you are in the prometheus directory: 
+```bash
+cd prometheus
+```
+
 To start the node exporter, we download the compressed binary file, uncompress
 it, and execute its binary:
 ```bash
 wget -O local-setup/node_exporter.tar.gz https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
 mkdir local-setup/node-exporter
 tar xvfz local-setup/node_exporter.tar.gz --directory local-setup/node-exporter --strip-components=1
-./local-setup/node-exporter/node_exporter "--web.listen-address=[0.0.0.0]:9100" &
+./local-setup/node-exporter/node_exporter "--web.listen-address=[0.0.0.0]:9100" >/dev/null 2>&1 & disown
 ```
 
 If we run the following command, we should see a list of metrics the
@@ -73,6 +86,37 @@ input box that has as label "Import via panel json". In that box, place the
 following json content, and click `Load` > `Import`:
 ```json
 {
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.2.0"
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -92,14 +136,14 @@ following json content, and click `Load` > `Import`:
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": null,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "e5417d40-376e-49e3-b704-6fe313af120d"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "This is computed as MemTotal - MemAvailable",
       "fieldConfig": {
@@ -108,11 +152,13 @@ following json content, and click `Load` > `Import`:
             "mode": "continuous-GrYlRd"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 20,
             "gradientMode": "scheme",
@@ -179,10 +225,10 @@ following json content, and click `Load` > `Import`:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "e5417d40-376e-49e3-b704-6fe313af120d"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes\n",
+          "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -195,7 +241,7 @@ following json content, and click `Load` > `Import`:
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "e5417d40-376e-49e3-b704-6fe313af120d"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -203,11 +249,13 @@ following json content, and click `Load` > `Import`:
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -274,10 +322,10 @@ following json content, and click `Load` > `Import`:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "e5417d40-376e-49e3-b704-6fe313af120d"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "(sum(rate(node_cpu_seconds_total{mode!=\"idle\"}[2m])) / count(node_cpu_seconds_total{mode=\"idle\"})) * 100 \n",
+          "expr": "(sum(rate(node_cpu_seconds_total{mode!=\"idle\"}[2m])) / count(node_cpu_seconds_total{mode=\"idle\"})) * 100 ",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -288,31 +336,27 @@ following json content, and click `Load` > `Import`:
       "type": "timeseries"
     }
   ],
-  "refresh": "",
-  "schemaVersion": 38,
-  "style": "dark",
+  "refresh": "10s",
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-12h",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Deployment Cost",
   "uid": "b2ce7b20-b098-485a-a8e9-e52541fd2e7e",
-  "version": 6,
+  "version": 2,
   "weekStart": ""
 }
 ```
 
-You should now see 2 visualizations, albeit with an error. To fix the error,
-edit each of the visualizations, and change the data source to the one you just
-created, update the query by adding or removing any white-space, and click the
-refresh button at the top right corner of the visualization. The graph data
-should now become available.
+We should then just add the prometheus datasource and the dashboard should
+display some visualisations.
 
 The following queries provide you with some insight with regards to the total
 compute and memory costs of your infrastructure, which are also the queries
@@ -341,14 +385,13 @@ Make sure minikube is running:
 minikube start
 ```
 
-Install helm: 
-```bash
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-```
-
 Verify whether helm is installed with:
 ```bash
 helm version
+# If not run the following command
+# curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+```
+
 ```
 
 Add the `prometheus-community` repository:
