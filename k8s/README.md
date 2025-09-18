@@ -27,10 +27,6 @@ resources and concepts:
 - service
 - horizontal pod autoscaling
 
-
-We will distribute the tutorial on k8s between 2 days, the 20th and the 25th of
-September.
-
 # Installing Minikube & kubectl
 
 To install minikube run the following commands:
@@ -104,7 +100,7 @@ spec:
         ]
       volumeMounts:
         - name: config-vol
-          mountPath: /app/experiment-producer/auth
+          mountPath: /experiment-producer/auth
   volumes:
     - name: config-vol
       configMap:

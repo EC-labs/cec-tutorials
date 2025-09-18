@@ -16,11 +16,11 @@ spec:
               image: dclandau/cec-experiment-producer:latest
               args: [
                   "--topic", "{{TOPIC}}", 
-                  "--brokers", "13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093",
+                  "--brokers", "kafka1.dlandau.nl:19092,kafka2.dlandau.nl:29092,kafka3.dlandau.nl:39092",
                 ]
               volumeMounts:
                 - name: config-vol
-                  mountPath: /app/experiment-producer/auth
+                  mountPath: /experiment-producer/auth
           volumes:
             - name: config-vol
               configMap:
