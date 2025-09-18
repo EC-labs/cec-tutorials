@@ -31,8 +31,6 @@ into your VM (don't forget to change the different parameters):
 
 ```bash
 scp -r -i <your-pem-file> <local-credentials-directory> ubuntu@<your-VMs-public-IP>:<kafka-tutorials-directory>
-
-# E.g. scp -r -i ../client50/ssh_key_50 ../client50 ubuntu@13.48.5.125:/home/ubuntu/cc-2023-tutorials/kafka/auth
 ```
 
 ## Other clients
@@ -55,7 +53,7 @@ import click
 from confluent_kafka import Producer
 
 p = Producer({
-    'bootstrap.servers': '13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093',
+    'bootstrap.servers': 'kafka1.dlandau.nl:19092,kafka2.dlandau.nl:29092,kafka3.dlandau.nl:39092',
     'security.protocol': 'SSL',
     'ssl.ca.location': './auth/ca.crt',
     'ssl.keystore.location': './auth/kafka.keystore.pkcs12',
@@ -95,7 +93,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGTERM, signal_handler)
 
 c = Consumer({
-    'bootstrap.servers': '13.60.146.188:19093,13.60.146.188:29093,13.60.146.188:39093',
+    'bootstrap.servers': 'kafka1.dlandau.nl:19092,kafka2.dlandau.nl:29092,kafka3.dlandau.nl:39092',
     'group.id': f"{random.random()}",
     'auto.offset.reset': 'latest',
     'enable.auto.commit': 'true',
