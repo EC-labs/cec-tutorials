@@ -536,9 +536,9 @@ spec:
   selector:
     app: notifications-service
   ports:
-    - port: 4000
+    - nodePort: 30674
+      port: 4000
       targetPort: 3000
-      nodePort: 30674
 ```
 
 The `service.yml` file creates a deployment with 2 replicas of our
@@ -556,17 +556,11 @@ load-balancing characteristic of services (see
 command, we set up our reverse proxy, which binds our host's port 3000 to our
 kubernetes service:
 ```bash
-docker run \
-    --rm -d \
-    --name nginx-proxy \
-    -v $(pwd)/service/conf.d:/etc/nginx/conf.d \
-    -p 3002:3001 \
-    --network minikube \
-    nginx:alpine 
+docker run --name notifications-service-proxy -d --rm -it --network=host alpine ash -c "apk add socat && socat TCP-LISTEN:3002,reuseaddr,fork TCP:$(minikube ip):30674"
 ```
 
 You may now open your browser on your computer and visit the link
-`<your-vm-ip>:3000`.
+`<your-vm-ip>:3002`.
 
 If we now run 5 of our requests: 
 ```bash
@@ -608,7 +602,7 @@ handled by each pod individually.
 Delete the resources just created:
 ```bash
 kubectl delete -f service/service.yml
-docker stop nginx-proxy
+docker stop notifications-service-proxy
 ```
 
 # Horizontal Pod Autoscaling
@@ -663,7 +657,7 @@ spec:
           - containerPort: 3000
           resources:
             requests:
-              cpu: 50m
+              cpu: 10m
 
 ---
 apiVersion: v1
@@ -703,8 +697,8 @@ spec:
 The deployment and the service resources should now be familiar to you, as
 these are similar to the ones used in the `service` part of this demo. The only
 difference is that in this deployment, we are defining resources for each
-container. Here, we define that our container requests `50m` which mean 50
-millicpu, i.e., 0.05 share of 1 vCPU's time.
+container. Here, we define that our container requests `10m` which means 10
+millicpu, i.e., 0.01 share of 1 vCPU's time.
 
 The last resource in our manifest is the HPA. Here we define that we want to
 scale our notifications-service deployment. It also sets the upper and lower
@@ -752,7 +746,7 @@ for i in $(seq 1 100000); do
             "experiment_id": "5678",
             "cipher_data": "D5qnEHeIrTYmLwYX.hSZNb3xxQ9MtGhRP7E52yv2seWo4tUxYe28ATJVHUi0J++SFyfq5LQc0sTmiS4ILiM0/YsPHgp5fQKuRuuHLSyLA1WR9YIRS6nYrokZ68u4OLC4j26JW/QpiGmAydGKPIvV2ImD8t1NOUrejbnp/cmbMDUKO1hbXGPfD7oTvvk6JQVBAxSPVB96jDv7C4sGTmuEDZPoIpojcTBFP2xA"
         }'
-    sleep 0.00001
+    sleep 0.1
 done
 ```
 
