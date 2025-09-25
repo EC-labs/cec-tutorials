@@ -86,11 +86,11 @@ cd openfaas
 
 To create a new function, run: 
 ```bash
-faas-cli new --lang python3 hello-world
+faas-cli new --lang python3-http hello-world
 ```
 
 This should add 2 directories, a `hello-world` and `template` directory.
-Additionally, you should also see a `hello-world.yml` file.
+Additionally, you should also see a `stack.yml` file.
 
 Now open the `hello-world/handler.py` file with your favourite text editor.
 ```bash
@@ -101,23 +101,31 @@ The `req` variable passed in the handler corresponds to what is passed in the
 body of th request. Let's modify the return from this: 
 ```python
     # ... 
-    return req 
+def handle(event, context):
+    return {
+        "statusCode": 200,
+        "body": "Hello from OpenFaaS!"
+    }
 ```
 To this: 
 ```python
     # ... 
-    return "Hello from CEC " + req 
+def handle(event, context):
+    return {
+        "statusCode": 200,
+        "body": "Hello from CEC!\n"
+    }
 ```
 
 We can now, build, push and deploy our functions to our k8s cluster:
 ```bash
-faas-cli build -f hello-world.yml
-faas-cli push -f hello-world.yml
-faas-cli deploy -f hello-world.yml
+faas-cli build -f stack.yaml
+faas-cli push -f stack.yaml
+faas-cli deploy -f stack.yaml
 ```
 or you may run the combination of these commands as a single command:
 ```bash
-faas-cli up -f hello-world.yml
+faas-cli up -f stack.yaml
 ```
 
 You may now make a request to your service:
