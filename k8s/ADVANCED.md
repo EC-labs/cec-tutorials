@@ -82,12 +82,19 @@ Initialise kubeadm:
 sudo kubeadm init --pod-network-cidr 10.244.0.0/16
 ```
 
+**Check the output of the previous command to configure kubectl.**
+
+**The output also provides the command you will need to run on the worker nodes you would like to add to the cluster. Make sure you take note of the `kubeadm join ...` command for your cluster.**
+
+
 ```bash
 sudo modprobe br_netfilter
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 ```
 
 ## Worker Node
+
+The parameters for the `kubeadm join` command is obtained in the output of running `kubeadm init` on the control-plane node.
 
 Client VMs:
 ```bash
