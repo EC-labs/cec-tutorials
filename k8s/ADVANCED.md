@@ -75,11 +75,11 @@ sudo apt-mark hold kubelet kubeadm kubectl
 
 Make sure you are running the right commands depending on whether you are deploying a control-plane node or a worker node.
 
-## Control Node
+## Control Node (Group VM)
 
 Initialise kubeadm:
 ```bash
-sudo kubeadm init --pod-network-cidr 10.244.0.0/16
+sudo kubeadm init --pod-network-cidr 10.244.0.0/16 --control-plane-endpoint <vm-public-ip>
 ```
 
 **Check the output of the previous command to configure kubectl.**
@@ -92,7 +92,9 @@ sudo modprobe br_netfilter
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 ```
 
-## Worker Node
+## Worker Node (Client VMs)
+
+**Make sure you run the Installation section before running the following commands**
 
 The parameters for the `kubeadm join` command is obtained in the output of running `kubeadm init` on the control-plane node.
 
