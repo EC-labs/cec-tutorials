@@ -75,7 +75,7 @@ sudo apt-mark hold kubelet kubeadm kubectl
 
 Make sure you are running the right commands depending on whether you are deploying a control-plane node or a worker node.
 
-## Control Node (Group VM)
+## Control Node 
 
 Initialise kubeadm:
 ```bash
@@ -92,7 +92,7 @@ sudo modprobe br_netfilter
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 ```
 
-## Worker Node (Client VMs)
+## Worker Node 
 
 **Make sure you run the Installation section before running the following commands**
 
