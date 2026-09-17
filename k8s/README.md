@@ -96,7 +96,7 @@ spec:
       image: dclandau/cec-experiment-producer:latest
       args: [
           "--topic", "{{TOPIC}}", 
-          "--brokers", "kafka1.dlandau.nl:19092,kafka2.dlandau.nl:29092,kafka3.dlandau.nl:39092",
+          "--brokers", "kafka.cec.dlandau.nl:19092,kafka.cec.dlandau.nl:29092,kafka.cec.dlandau.nl:39092",
         ]
       volumeMounts:
         - name: config-vol
@@ -425,7 +425,7 @@ spec:
           image: dclandau/consumer_assignment:1.0.1
           args: [
             "consumer.py", 
-            "kafka1.dlandau.nl:19092,kafka2.dlandau.nl:29092,kafka3.dlandau.nl:39092",
+            "kafka.cec.dlandau.nl:19092,kafka.cec.dlandau.nl:29092,kafka.cec.dlandau.nl:39092",
             "{{TOPIC}}",
             "{{GROUP_ID}}",
           ]

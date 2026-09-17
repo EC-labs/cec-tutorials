@@ -17,7 +17,7 @@ signal.signal(signal.SIGTERM, signal_handler)
 @click.argument('offset_reset')
 def consume(topic: str, offset_reset: str): 
     c = Consumer({
-        'bootstrap.servers': 'kafka1.dlandau.nl:19092,kafka2.dlandau.nl:29092,kafka3.dlandau.nl:39092',
+        'bootstrap.servers': 'kafka.cec.dlandau.nl:19092,kafka.cec.dlandau.nl:29092,kafka.cec.dlandau.nl:39092',
         'group.id': f"{random.random()}",
         'auto.offset.reset': offset_reset,
         'security.protocol': 'SSL',

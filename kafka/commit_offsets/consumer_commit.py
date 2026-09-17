@@ -22,7 +22,7 @@ def store_data():
 @click.argument('group_id')
 def consume(topic: str, group_id: str): 
     c = Consumer({
-        'bootstrap.servers': 'kafka1.dlandau.nl:19092,kafka2.dlandau.nl:29092,kafka3.dlandau.nl:39092',
+        'bootstrap.servers': 'kafka.cec.dlandau.nl:19092,kafka.cec.dlandau.nl:29092,kafka.cec.dlandau.nl:39092',
         'group.id': f"{group_id}",
         'auto.offset.reset': 'earliest',
         'security.protocol': 'SSL',

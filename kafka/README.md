@@ -53,7 +53,7 @@ import click
 from confluent_kafka import Producer
 
 p = Producer({
-    'bootstrap.servers': 'kafka1.dlandau.nl:19092,kafka2.dlandau.nl:29092,kafka3.dlandau.nl:39092',
+    'bootstrap.servers': 'kafka.cec.dlandau.nl:19092,kafka.cec.dlandau.nl:29092,kafka.cec.dlandau.nl:39092',
     'security.protocol': 'SSL',
     'ssl.ca.location': './auth/ca.crt',
     'ssl.keystore.location': './auth/kafka.keystore.pkcs12',
@@ -93,7 +93,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGTERM, signal_handler)
 
 c = Consumer({
-    'bootstrap.servers': 'kafka1.dlandau.nl:19092,kafka2.dlandau.nl:29092,kafka3.dlandau.nl:39092',
+    'bootstrap.servers': 'kafka.cec.dlandau.nl:19092,kafka.cec.dlandau.nl:29092,kafka.cec.dlandau.nl:39092',
     'group.id': f"{random.random()}",
     'auto.offset.reset': 'latest',
     'enable.auto.commit': 'true',
@@ -438,7 +438,7 @@ docker run \
     --rm \
     -v ./auth:/experiment-producer/auth \
     dclandau/cec-experiment-producer \
-    --topic "<topic>" --brokers "kafka1.dlandau.nl:19092" 
+    --topic "<topic>" --brokers "kafka.cec.dlandau.nl:19092" 
 ```
 
 ## Load Variability
@@ -489,7 +489,7 @@ docker run --network producer -d --rm --name production-rate -it -p 3007:8501 --
 
 Note that we also mapped the VM's port 3007 with the container's port 8501. If you now open your browser on `http://<your-vm-ip>:3007` you should see an empty graph. To start observing data in the graph displayed on the browser, start the producer as follows (please change the parameterised `<topic>` in the command): 
 ```bash
-docker run --rm --name producer -v ./auth:/experiment-producer/auth -v ./loads/2.json:/config.json -it --network producer dclandau/cec-experiment-producer -b kafka1.dlandau.nl:19092 --config-file /config.json --topic <topic>
+docker run --rm --name producer -v ./auth:/experiment-producer/auth -v ./loads/2.json:/config.json -it --network producer dclandau/cec-experiment-producer -b kafka.cec.dlandau.nl:19092 --config-file /config.json --topic <topic>
 ```
 The graph should now display the rate at which data is produced in `events/s`.
 
@@ -541,7 +541,7 @@ Let's run a similar configuration, but now we will start a 3rd experiment 45 sec
 
 Make sure you refresh your browser. After doing so, start the producer making sure that you change the configuration file to `./loads/3.json`. 
 ```bash
-docker run --rm --name producer -v ./auth:/experiment-producer/auth -v ./loads/3.json:/config.json -it --network producer dclandau/cec-experiment-producer -b kafka1.dlandau.nl:19092 --config-file /config.json --topic <topic>
+docker run --rm --name producer -v ./auth:/experiment-producer/auth -v ./loads/3.json:/config.json -it --network producer dclandau/cec-experiment-producer -b kafka.cec.dlandau.nl:19092 --config-file /config.json --topic <topic>
 ```
 
 You should now see that up until the 45th second, the graph looks very similar, however, since we have added another experiment starting at second 45, the remainder of the production rate will now also include this new experiment.
@@ -562,7 +562,7 @@ The following command starts a producer, similar to how we have done in the prev
 * We mount a host directory `./logs` on its `/logs` path, which is also where the container will store its logs (`-v ./logs:/logs`).
 
 ```bash
-docker run --rm -e RUST_LOG=debug --name producer -v ./auth:/experiment-producer/auth -v ./loads/2.json:/config.json -v ./logs:/logs -it dclandau/cec-experiment-producer -b kafka1.dlandau.nl:19092 --topic <topic> --config-file /config.json --file-subscriber
+docker run --rm -e RUST_LOG=debug --name producer -v ./auth:/experiment-producer/auth -v ./loads/2.json:/config.json -v ./logs:/logs -it dclandau/cec-experiment-producer -b kafka.cec.dlandau.nl:19092 --topic <topic> --config-file /config.json --file-subscriber
 ```
 
 After running the producer, in your current working directory, you should now see a new `./logs` directory, with a file whose contents look similar to this:
@@ -648,7 +648,7 @@ $ docker run -it -v ./logs:/logs dclandau/cec-production-validation /logs/produc
 
 If you run the producer again similar to how you did in the previous command: 
 ```bash
-docker run --rm -e RUST_LOG=debug --name producer -v ./auth:/experiment-producer/auth -v ./loads/2.json:/config.json -v ./logs:/logs -it dclandau/cec-experiment-producer -b kafka1.dlandau.nl:19092 --topic <topic> --config-file /config.json --file-subscriber
+docker run --rm -e RUST_LOG=debug --name producer -v ./auth:/experiment-producer/auth -v ./loads/2.json:/config.json -v ./logs:/logs -it dclandau/cec-experiment-producer -b kafka.cec.dlandau.nl:19092 --topic <topic> --config-file /config.json --file-subscriber
 ```
 you will observe that depending on whether you are running the command on the same day, the data will end up in the same file. As such, it might become difficult to figure out which events were produced in this last producer run. To help you with this problem, you can run the same command above with a lower bound time filter, which only considers the events that were produced after a particular time. To illustrate this, if we run the command without a time-filter we should see events for all experiments (4 experiments - 2 per run):
 
